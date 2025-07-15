@@ -3,39 +3,858 @@
   <head>
     <meta charset="utf-8" />
     <title>Juanma AI Generator</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        padding: 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        line-height: 1.5;
+      }
+      
+      .container {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        max-width: 400px;
+      }
+      
+      .header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      
+      .logo {
+        font-size: 32px;
+        margin-bottom: 8px;
+      }
+      
+      h1 {
+        font-size: 24px;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin-bottom: 4px;
+      }
+      
+      .subtitle {
+        color: #666;
+        font-size: 14px;
+      }
+      
+      .form-group {
+        margin-bottom: 20px;
+      }
+      
+      label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 6px;
+        font-size: 14px;
+      }
+      
+      input, textarea, select {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+      
+      input:focus, textarea:focus, select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+      
+      .context-section {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 20px;
+      }
+      
+      .context-title {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+      
+      .context-info {
+        color: #6b7280;
+        font-size: 12px;
+        margin-bottom: 12px;
+      }
+      
+      .btn {
+        width: 100%;
+        padding: 14px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+      }
+      
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+      }
+      
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+      }
+      
+      .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        margin-bottom: 12px;
+      }
+      
+      .btn-secondary:hover {
+        background: #e5e7eb;
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        transform: none !important;
+        box-shadow: none !important;
+      }
+
+      .btn-loading {
+        position: relative;
+        pointer-events: none;
+      }
+
+      .btn-loading .btn-text {
+        opacity: 0;
+      }
+
+      .spinner {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-top: 2px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
+
+      .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        font-size: 14px;
+        display: none;
+      }
+      
+      .alert-error {
+        background: #fef2f2;
+        color: #dc2626;
+        border: 1px solid #fca5a5;
+      }
+      
+      .alert-success {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1px solid #86efac;
+      }
+      
+      .help-link {
+        color: #667eea;
+        text-decoration: none;
+        font-size: 12px;
+      }
+      
+      .help-link:hover {
+        text-decoration: underline;
+      }
+      
+      .model-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        background: #e0e7ff;
+        color: #3730a3;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+        margin-left: 8px;
+      }
+
+      .device-selector {
+        display: flex;
+        gap: 12px;
+        margin-top: 8px;
+      }
+
+      .device-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 14px;
+        color: #374151;
+      }
+
+      .device-option input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        accent-color: #667eea;
+      }
+
+      .device-icon {
+        font-size: 16px;
+      }
+
+      /* Acordeones */
+      .accordion {
+        margin-bottom: 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .accordion-header {
+        background: #f9fafb;
+        padding: 16px;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        color: #374151;
+        border: none;
+        width: 100%;
+        text-align: left;
+        transition: background-color 0.2s;
+      }
+
+      .accordion-header:hover {
+        background: #f3f4f6;
+      }
+
+      .accordion-header.active {
+        background: #e0e7ff;
+        color: #3730a3;
+      }
+
+      .accordion-icon {
+        transition: transform 0.2s;
+        font-size: 14px;
+      }
+
+      .accordion-header.active .accordion-icon {
+        transform: rotate(180deg);
+      }
+
+      .accordion-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+        background: white;
+      }
+
+      .accordion-content.active {
+        max-height: 600px;
+      }
+
+      .accordion-body {
+        padding: 16px;
+      }
+
+      .saved-indicator {
+        color: #059669;
+        font-size: 12px;
+        margin-left: 8px;
+      }
+    </style>
   </head>
-  <body style="font-family:sans-serif;padding:16px;">
-    <h3 style="margin-top:0">Juanma AI Generator</h3>
-    
-    <label for="apikey" style="font-size:12px;">API Key de Gemini:</label><br/>
-    <input type="password" id="apikey" placeholder="Ingresa tu API key" style="width:280px;margin-bottom:10px;" /><br/>
-    <small style="color:gray;">Obtén tu API key en <a href="https://aistudio.google.com/app/apikey" target="_blank">AI Studio</a></small><br/><br/>
-    
-    <label for="prompt" style="font-size:12px;">Prompt de diseño:</label><br/>
-    <textarea id="prompt" style="width:280px;height:240px;" placeholder="Ej: quiero generar una pantalla de login"></textarea><br/><br/>
-    
-    <button id="go" style="background:#007df0;color:white;border:none;padding:8px 16px;border-radius:4px;">Generar / Actualizar</button>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">🎨</div>
+        <h1>Juanma AI Generator</h1>
+        <div class="subtitle">Diseña interfaces con inteligencia artificial</div>
+      </div>
+      
+      <div id="alert" class="alert"></div>
+      
+      <!-- Acordeón de Configuración -->
+      <div class="accordion">
+        <button class="accordion-header" onclick="toggleAccordion('config')">
+          <span>⚙️ Configuración</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content" id="config-content">
+          <div class="accordion-body">
+            <div class="form-group">
+              <label for="apikey">API Key de Gemini <span id="apikey-saved" class="saved-indicator" style="display:none">✓ Guardada</span></label>
+              <input type="password" id="apikey" placeholder="Ingresa tu API key de Google AI" />
+              <small><a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">Obtener API key gratuita</a></small>
+            </div>
+            
+            <div class="form-group">
+              <label for="model">Modelo de IA <span class="model-badge">PRO</span></label>
+              <select id="model">
+                <option value="gemini-1.5-flash">Gemini 1.5 Flash (Rápido)</option>
+                <option value="gemini-1.5-pro">Gemini 1.5 Pro (Avanzado)</option>
+                <option value="gemini-2.0-flash">Gemini 2.0 Flash (Experimental)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acordeón de Contexto (Opcional) -->
+      <div class="accordion">
+        <button class="accordion-header" onclick="toggleAccordion('context')">
+          <span>📋 Contexto (Opcional)</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content" id="context-content">
+          <div class="accordion-body">
+            <div class="context-section">
+              <div class="context-info">Selecciona un frame existente para editarlo o adaptarlo a otros dispositivos</div>
+              <button type="button" id="getContext" class="btn btn-secondary">📋 Obtener Selección Actual</button>
+              <div id="contextInfo" style="margin-top:8px; font-size:12px; color:#6b7280;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Acordeón de Reglas Personalizadas -->
+      <div class="accordion">
+        <button class="accordion-header" onclick="toggleAccordion('rules')">
+          <span>📝 Reglas Personalizadas</span>
+          <span class="accordion-icon">▼</span>
+        </button>
+        <div class="accordion-content" id="rules-content">
+          <div class="accordion-body">
+            <div class="form-group">
+              <label for="customRules">Reglas Globales <span id="rules-saved" class="saved-indicator" style="display:none">✓ Guardadas</span></label>
+              <textarea id="customRules" rows="3" placeholder="Ej: Usa siempre colores azules, prefiere tipografía sans-serif, incluye sombras sutiles..."></textarea>
+              <small>Estas reglas se aplicarán a todos los diseños generados</small>
+            </div>
+            <button type="button" id="saveRules" class="btn btn-secondary" style="width: auto; padding: 8px 16px;">💾 Guardar Reglas</button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Formulario Principal -->
+      <div class="form-group">
+        <label>Tipo de Dispositivo</label>
+        <div class="device-selector">
+          <div class="device-option">
+            <input type="radio" id="mobile" name="device" value="mobile" checked>
+            <label for="mobile"><span class="device-icon">📱</span> Mobile</label>
+          </div>
+          <div class="device-option">
+            <input type="radio" id="tablet" name="device" value="tablet">
+            <label for="tablet"><span class="device-icon">📟</span> Tablet</label>
+          </div>
+          <div class="device-option">
+            <input type="radio" id="desktop" name="device" value="desktop">
+            <label for="desktop"><span class="device-icon">🖥️</span> Desktop</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="prompt">Prompt de Diseño</label>
+        <textarea id="prompt" rows="4" placeholder="Ej: Diseña una pantalla de login moderna con botones redondeados y colores suaves"></textarea>
+      </div>
+      
+      <button id="generate" class="btn btn-primary">
+        <span class="btn-text">✨ Generar Diseño</span>
+      </button>
+    </div>
     
     <script>
-      document.getElementById("go").onclick = () => {
-        const apiKey = document.getElementById("apikey").value;
-        const prompt = document.getElementById("prompt").value;
+      let selectedFrame = null;
+      
+      // Configuración de almacenamiento con fallback
+      const STORAGE_KEYS = {
+        apiKey: 'juanma-ai-apikey',
+        model: 'juanma-ai-model', 
+        customRules: 'juanma-ai-rules',
+        accordionStates: 'juanma-ai-accordion-states'
+      };
+      
+      // Sistema de almacenamiento con fallback
+      let memoryStorage = {}; // Fallback cuando localStorage no está disponible
+      let isLocalStorageAvailable = false;
+      
+      // Detectar si localStorage está disponible
+      function checkLocalStorageAvailability() {
+        try {
+          const test = '__localStorage_test__';
+          localStorage.setItem(test, test);
+          localStorage.removeItem(test);
+          isLocalStorageAvailable = true;
+          return true;
+        } catch (e) {
+          isLocalStorageAvailable = false;
+          console.warn('localStorage no disponible, usando almacenamiento en memoria');
+          return false;
+        }
+      }
+      
+      // Funciones de almacenamiento unificadas
+      function setStorageItem(key, value) {
+        try {
+          if (isLocalStorageAvailable) {
+            localStorage.setItem(key, value);
+          } else {
+            memoryStorage[key] = value;
+          }
+        } catch (e) {
+          console.warn('Error al guardar configuración:', e);
+          memoryStorage[key] = value; // Fallback a memoria
+        }
+      }
+      
+      function getStorageItem(key) {
+        try {
+          if (isLocalStorageAvailable) {
+            return localStorage.getItem(key);
+          } else {
+            return memoryStorage[key] || null;
+          }
+        } catch (e) {
+          console.warn('Error al leer configuración:', e);
+          return memoryStorage[key] || null;
+        }
+      }
+      
+      function removeStorageItem(key) {
+        try {
+          if (isLocalStorageAvailable) {
+            localStorage.removeItem(key);
+          } else {
+            delete memoryStorage[key];
+          }
+        } catch (e) {
+          console.warn('Error al eliminar configuración:', e);
+          delete memoryStorage[key];
+        }
+      }
+      
+      // Cargar configuración guardada al iniciar
+      function loadSavedConfig() {
+        // Cargar API Key
+        const savedApiKey = getStorageItem(STORAGE_KEYS.apiKey);
+        if (savedApiKey) {
+          document.getElementById('apikey').value = savedApiKey;
+          const indicator = document.getElementById('apikey-saved');
+          indicator.style.display = 'inline';
+          
+          // Mostrar tipo de almacenamiento
+          if (isLocalStorageAvailable) {
+            indicator.textContent = '✓ Guardada';
+          } else {
+            indicator.textContent = '✓ En sesión';
+            indicator.title = 'Guardada solo para esta sesión';
+          }
+        }
+        
+        // Cargar modelo
+        const savedModel = getStorageItem(STORAGE_KEYS.model);
+        if (savedModel) {
+          document.getElementById('model').value = savedModel;
+        }
+        
+        // Cargar reglas personalizadas
+        const savedRules = getStorageItem(STORAGE_KEYS.customRules);
+        if (savedRules) {
+          document.getElementById('customRules').value = savedRules;
+          const indicator = document.getElementById('rules-saved');
+          indicator.style.display = 'inline';
+          
+          // Mostrar tipo de almacenamiento
+          if (isLocalStorageAvailable) {
+            indicator.textContent = '✓ Guardadas';
+          } else {
+            indicator.textContent = '✓ En sesión';
+            indicator.title = 'Guardadas solo para esta sesión';
+          }
+        }
+        
+        // Cargar estados de acordeones
+        const savedAccordionStatesStr = getStorageItem(STORAGE_KEYS.accordionStates);
+        const savedAccordionStates = savedAccordionStatesStr ? JSON.parse(savedAccordionStatesStr) : {};
+        Object.keys(savedAccordionStates).forEach(id => {
+          if (savedAccordionStates[id]) {
+            toggleAccordion(id, true);
+          }
+        });
+      }
+      
+      // Guardar configuración
+      function saveConfig() {
+        const apiKey = document.getElementById('apikey').value;
+        const model = document.getElementById('model').value;
+        
+        if (apiKey) {
+          setStorageItem(STORAGE_KEYS.apiKey, apiKey);
+          const indicator = document.getElementById('apikey-saved');
+          indicator.style.display = 'inline';
+          
+          // Mostrar tipo de almacenamiento
+          if (isLocalStorageAvailable) {
+            indicator.textContent = '✓ Guardada';
+          } else {
+            indicator.textContent = '✓ En sesión';
+            indicator.title = 'Guardada solo para esta sesión';
+          }
+        }
+        
+        setStorageItem(STORAGE_KEYS.model, model);
+      }
+      
+      // Función para manejar acordeones
+      function toggleAccordion(id, forceOpen = false) {
+        const content = document.getElementById(id + '-content');
+        const header = content.previousElementSibling;
+        const icon = header.querySelector('.accordion-icon');
+        
+        const isCurrentlyOpen = content.classList.contains('active');
+        
+        if (forceOpen || !isCurrentlyOpen) {
+          content.classList.add('active');
+          header.classList.add('active');
+          icon.style.transform = 'rotate(180deg)';
+        } else {
+          content.classList.remove('active');
+          header.classList.remove('active');
+          icon.style.transform = 'rotate(0deg)';
+        }
+        
+        // Guardar estado del acordeón
+        const accordionStatesStr = getStorageItem(STORAGE_KEYS.accordionStates);
+        const accordionStates = accordionStatesStr ? JSON.parse(accordionStatesStr) : {};
+        accordionStates[id] = content.classList.contains('active');
+        setStorageItem(STORAGE_KEYS.accordionStates, JSON.stringify(accordionStates));
+      }
+      
+      // Inicializar al cargar la página
+      document.addEventListener('DOMContentLoaded', function() {
+        // Verificar disponibilidad de localStorage
+        checkLocalStorageAvailability();
+        
+        // Mostrar estado de almacenamiento
+        showStorageStatus();
+        
+        loadSavedConfig();
+        
+        // Abrir acordeón de configuración por defecto si no hay configuración
+        const savedApiKey = getStorageItem(STORAGE_KEYS.apiKey);
+        if (!savedApiKey) {
+          toggleAccordion('config', true);
+        }
+        
+        // Mostrar estado inicial por defecto (nuevo diseño)
+        resetContext();
+      });
+      
+      // Guardar reglas personalizadas
+      document.getElementById('saveRules').onclick = function() {
+        const rules = document.getElementById('customRules').value;
+        setStorageItem(STORAGE_KEYS.customRules, rules);
+        
+        const indicator = document.getElementById('rules-saved');
+        indicator.style.display = 'inline';
+        
+        if (isLocalStorageAvailable) {
+          indicator.textContent = '✓ Guardadas';
+          indicator.title = '';
+          showAlert('Reglas guardadas correctamente', 'success');
+        } else {
+          indicator.textContent = '✓ En sesión';
+          indicator.title = 'Guardadas solo para esta sesión';
+          showAlert('Reglas guardadas en esta sesión (no persistirán al reiniciar)', 'success');
+        }
+      };
+      
+      // Auto-guardar configuración cuando cambie
+      document.getElementById('apikey').addEventListener('input', function() {
+        setTimeout(saveConfig, 1000); // Guardar después de 1 segundo de inactividad
+      });
+      
+      document.getElementById('model').addEventListener('change', saveConfig);
+      
+      // Función para reiniciar el contexto
+      function resetContext() {
+        selectedFrame = null;
+        const info = document.getElementById('contextInfo');
+        info.innerHTML = `
+          <div style="background: #f0fdf4; padding: 12px; border-radius: 8px; margin-top: 8px; border: 1px solid #86efac;">
+            <div style="font-weight: 600; color: #166534; margin-bottom: 4px;">
+              🆕 Modo: Crear Nuevo Diseño
+            </div>
+            <div style="font-size: 12px; color: #059669;">
+              Se creará un diseño completamente nuevo basado en tu prompt
+            </div>
+          </div>
+        `;
+      }
+      
+      // Mostrar estado del almacenamiento
+      function showStorageStatus() {
+        if (!isLocalStorageAvailable) {
+          const alert = document.getElementById('alert');
+          alert.className = 'alert alert-error';
+          alert.innerHTML = `
+            <strong>⚠️ Almacenamiento limitado:</strong> 
+            Las configuraciones solo se guardarán durante esta sesión. 
+            Tendrás que reconfigurar al reiniciar el plugin.
+          `;
+          alert.style.display = 'block';
+          
+          // Auto-ocultar después de 8 segundos
+          setTimeout(() => {
+            alert.style.display = 'none';
+          }, 8000);
+        }
+      }
+      
+      // Mostrar alertas lindas
+      function showAlert(message, type = 'error') {
+        const alert = document.getElementById('alert');
+        alert.className = `alert alert-${type}`;
+        alert.textContent = message;
+        alert.style.display = 'block';
+        setTimeout(() => {
+          alert.style.display = 'none';
+        }, 4000);
+      }
+      
+      // Funciones para manejar el estado de carga del botón
+      function setButtonLoading(buttonId, isLoading, loadingText = 'Cargando...') {
+        console.log('setButtonLoading called:', { buttonId, isLoading, loadingText });
+        const button = document.getElementById(buttonId);
+        const textSpan = button.querySelector('.btn-text');
+        
+        if (!button) {
+          console.error('Button not found:', buttonId);
+          return;
+        }
+        
+        if (isLoading) {
+          console.log('Setting loading state...');
+          button.disabled = true;
+          button.classList.add('btn-loading');
+          
+          // Crear spinner si no existe
+          if (!button.querySelector('.spinner')) {
+            console.log('Creating spinner...');
+            const spinner = document.createElement('div');
+            spinner.className = 'spinner';
+            button.appendChild(spinner);
+          }
+          
+          // Cambiar texto pero mantenerlo visible para debug
+          if (textSpan) {
+            textSpan.textContent = loadingText;
+            // Mantener visible temporalmente para debug
+            textSpan.style.opacity = '0.5';
+          }
+        } else {
+          console.log('Removing loading state...');
+          button.disabled = false;
+          button.classList.remove('btn-loading');
+          
+          // Remover spinner
+          const spinner = button.querySelector('.spinner');
+          if (spinner) {
+            spinner.remove();
+          }
+          
+          // Restaurar texto original
+          if (textSpan) {
+            textSpan.textContent = '✨ Generar Diseño';
+            textSpan.style.opacity = '1';
+          }
+        }
+      }
+      
+      // Función para adaptar frame a otro dispositivo
+      function adaptFrameToDevice(targetDevice) {
+        if (!selectedFrame || !selectedFrame.styleInfo) {
+          showAlert("Primero selecciona un frame para usar como base");
+          return;
+        }
+        
+        const apiKey = document.getElementById('apikey').value;
+        const model = document.getElementById('model').value;
         
         if (!apiKey) {
-          alert("Por favor ingresa tu API key de Gemini");
+          showAlert("Por favor ingresa tu API key de Gemini");
+          return;
+        }
+        
+        // Generar prompt especializado para adaptación
+        const style = selectedFrame.styleInfo;
+        const adaptPrompt = `Adapta "${selectedFrame.name}" de ${selectedFrame.deviceType} a ${targetDevice}.
+
+FRAME ORIGINAL:
+- Nombre: ${selectedFrame.name}
+- Dimensiones: ${selectedFrame.width}x${selectedFrame.height}
+- Dispositivo actual: ${selectedFrame.deviceType}
+- ${style.description}
+- Color de fondo: ${style.backgroundColor}
+- Colores principales: ${style.primaryColors?.join(', ') || 'N/A'}
+- Layout: ${style.layoutMode}
+- Espaciado: ${style.spacing}px
+- Padding: ${style.padding}
+
+INSTRUCCIONES:
+- Mantén el mismo estilo visual y colores
+- Adapta las dimensiones y proporciones al dispositivo ${targetDevice}
+- Conserva la misma funcionalidad y elementos
+- Ajusta tamaños de fuente y espaciado apropiadamente
+- Mantén la jerarquía visual`;
+
+        // Activar estado de carga
+        setButtonLoading('generate', true, `🔄 Adaptando a ${targetDevice}...`);
+        
+        // Cambiar automáticamente el dispositivo seleccionado en la UI
+        const deviceRadio = document.getElementById(targetDevice);
+        if (deviceRadio) deviceRadio.checked = true;
+        
+        parent.postMessage({ pluginMessage: {
+          type: "generate",
+          prompt: adaptPrompt,
+          apiKey: apiKey,
+          model: model,
+          deviceType: targetDevice,
+          selectedFrame: null, // No editar el frame existente, crear uno nuevo
+          isAdaptation: true
+        } }, "*");
+      }
+      
+      // Obtener contexto de selección
+      document.getElementById('getContext').onclick = () => {
+        parent.postMessage({ pluginMessage: { type: "getContext" } }, "*");
+      };
+      
+      // Generar diseño
+      document.getElementById('generate').onclick = async () => {
+        const apiKey = document.getElementById('apikey').value;
+        const prompt = document.getElementById('prompt').value;
+        const model = document.getElementById('model').value;
+        const deviceType = document.querySelector('input[name="device"]:checked').value;
+        const customRules = document.getElementById('customRules').value;
+        
+        if (!apiKey) {
+          showAlert("Por favor ingresa tu API key de Gemini");
+          toggleAccordion('config', true); // Abrir acordeón de configuración
           return;
         }
         
         if (!prompt) {
-          alert("Por favor ingresa un prompt de diseño");
+          showAlert("Por favor ingresa un prompt de diseño");
           return;
         }
         
+        // Combinar prompt con reglas personalizadas
+        let finalPrompt = prompt;
+        if (customRules.trim()) {
+          finalPrompt = `REGLAS PERSONALIZADAS: ${customRules.trim()}
+
+PROMPT: ${prompt}`;
+        }
+        
+        // Guardar configuración antes de generar
+        saveConfig();
+        
+        // Activar estado de carga INMEDIATAMENTE
+        setButtonLoading('generate', true, '🤖 Generando...');
+        
+        // Pequeño delay para asegurar que se vea el loading
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         parent.postMessage({ pluginMessage: {
           type: "generate",
-          prompt: prompt,
-          apiKey: apiKey
+          prompt: finalPrompt,
+          apiKey: apiKey,
+          model: model,
+          deviceType: deviceType,
+          selectedFrame: selectedFrame, // Puede ser null si no hay contexto
+          hasCustomRules: customRules.trim().length > 0
         } }, "*");
+      };
+      
+      // Escuchar mensajes del plugin
+      window.onmessage = (event) => {
+        const msg = event.data.pluginMessage;
+        if (msg.type === 'contextUpdate') {
+          selectedFrame = msg.frame;
+          const info = document.getElementById('contextInfo');
+          if (msg.frame && msg.frame.styleInfo) {
+            const frame = msg.frame;
+            const style = frame.styleInfo;
+            info.innerHTML = `
+              <div style="background: #f8fafc; padding: 12px; border-radius: 8px; margin-top: 8px;">
+                <div style="font-weight: 600; color: #1f2937; margin-bottom: 6px;">
+                  📱 ${frame.name} (${frame.deviceType?.toUpperCase()})
+                </div>
+                <div style="font-size: 12px; color: #6b7280; line-height: 1.4;">
+                  ${style.description}<br/>
+                  <span style="color: #059669;">✓ Listo para adaptar a otros dispositivos</span>
+                </div>
+                ${frame.deviceType !== 'mobile' ? '<button id="adaptToMobile" class="btn btn-secondary" style="margin-top: 8px; font-size: 12px; padding: 6px 12px;">📱 Crear versión Mobile</button>' : ''}
+                ${frame.deviceType !== 'tablet' ? '<button id="adaptToTablet" class="btn btn-secondary" style="margin-top: 8px; font-size: 12px; padding: 6px 12px;">📟 Crear versión Tablet</button>' : ''}
+                ${frame.deviceType !== 'desktop' ? '<button id="adaptToDesktop" class="btn btn-secondary" style="margin-top: 8px; font-size: 12px; padding: 6px 12px;">🖥️ Crear versión Desktop</button>' : ''}
+              </div>
+            `;
+            
+            // Agregar event listeners para los botones de adaptación
+            const adaptButtons = ['adaptToMobile', 'adaptToTablet', 'adaptToDesktop'];
+            adaptButtons.forEach(buttonId => {
+              const button = document.getElementById(buttonId);
+              if (button) {
+                button.onclick = () => {
+                  const targetDevice = buttonId.replace('adaptTo', '').toLowerCase();
+                  adaptFrameToDevice(targetDevice);
+                };
+              }
+            });
+          } else if (msg.frame) {
+            info.innerHTML = `📱 Editando: <strong>${msg.frame.name}</strong> (${msg.frame.width}x${msg.frame.height})`;
+          } else {
+            resetContext();
+          }
+        } else if (msg.type === 'alert') {
+          setButtonLoading('generate', false); // Desactivar carga en error
+          showAlert(msg.message, msg.alertType);
+        } else if (msg.type === 'success') {
+          setButtonLoading('generate', false); // Desactivar carga en éxito
+          resetContext(); // Reiniciar contexto después de generar
+          showAlert(msg.message, 'success');
+        }
       };
     </script>
   </body>

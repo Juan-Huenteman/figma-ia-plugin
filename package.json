@@ -8,6 +8,10 @@
   },
   "scripts": {
     "build": "tsc -p .",
-    "watch": "tsc -w -p ."
+    "watch": "tsc -w -p .",
+    "clean": "powershell -Command \"Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue\"",
+    "clean:unix": "rm -rf dist",
+    "dev": "powershell -Command \"npm run clean; npm run watch\"",
+    "prod": "powershell -Command \"npm run clean; npm run build\""
   }
 }

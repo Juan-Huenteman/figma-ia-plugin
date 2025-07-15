@@ -1,14 +1,22 @@
 {
   "compilerOptions": {
-    "target": "es6",
+    "target": "es2017",
     "module": "esnext",
     "moduleResolution": "node",
     "strict": true,
     "noImplicitAny": false,
-    "outDir": "./",
+    "outDir": "./dist",
     "types": ["@figma/plugin-typings"],
-    "lib": ["es6"],
-    "skipLibCheck": true
+    "lib": ["es2017"],
+    "skipLibCheck": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
   },
-  "files": ["code.ts"]
+  "include": ["code.ts", "src/**/*"],
+  "exclude": ["node_modules", "dist", "*.js", "*.d.ts"]
 }

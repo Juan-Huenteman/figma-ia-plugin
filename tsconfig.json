@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "es6",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": false,
+    "outDir": "./",
+    "types": ["@figma/plugin-typings"],
+    "lib": ["es6"],
+    "skipLibCheck": true
+  },
+  "files": ["code.ts"]
+}

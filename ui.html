@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Juanma AI Generator</title>
+  </head>
+  <body style="font-family:sans-serif;padding:16px;">
+    <h3 style="margin-top:0">Juanma AI Generator</h3>
+    
+    <label for="apikey" style="font-size:12px;">API Key de Gemini:</label><br/>
+    <input type="password" id="apikey" placeholder="Ingresa tu API key" style="width:280px;margin-bottom:10px;" /><br/>
+    <small style="color:gray;">Obtén tu API key en <a href="https://aistudio.google.com/app/apikey" target="_blank">AI Studio</a></small><br/><br/>
+    
+    <label for="prompt" style="font-size:12px;">Prompt de diseño:</label><br/>
+    <textarea id="prompt" style="width:280px;height:240px;" placeholder="Ej: quiero generar una pantalla de login"></textarea><br/><br/>
+    
+    <button id="go" style="background:#007df0;color:white;border:none;padding:8px 16px;border-radius:4px;">Generar / Actualizar</button>
+    
+    <script>
+      document.getElementById("go").onclick = () => {
+        const apiKey = document.getElementById("apikey").value;
+        const prompt = document.getElementById("prompt").value;
+        
+        if (!apiKey) {
+          alert("Por favor ingresa tu API key de Gemini");
+          return;
+        }
+        
+        if (!prompt) {
+          alert("Por favor ingresa un prompt de diseño");
+          return;
+        }
+        
+        parent.postMessage({ pluginMessage: {
+          type: "generate",
+          prompt: prompt,
+          apiKey: apiKey
+        } }, "*");
+      };
+    </script>
+  </body>
+</html>

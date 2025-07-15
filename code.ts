@@ -73,15 +73,27 @@ RESPONDE SOLO con JSON válido siguiendo este formato exacto:
           "fills": [{"type": "SOLID", "color": {"r": 0.95, "g": 0.95, "b": 0.97, "a": 1}}],
           "effects": [{"type": "DROP_SHADOW", "color": {"r": 0, "g": 0, "b": 0, "a": 0.1}, "offset": {"x": 0, "y": 2}, "radius": 8}]
         },
-        {
-          "type": "IMAGE",
-          "x": 20,
-          "y": 200,
-          "width": 100,
-          "height": 100,
-          "cornerRadius": 50,
-          "imageUrl": "placeholder"
-        }
+                 {
+           "type": "TEXT",
+           "text": "Iniciar Sesión",
+           "x": 20,
+           "y": 108,
+           "width": 335,
+           "height": 28,
+           "fontSize": 18,
+           "fontWeight": "bold",
+           "textAlign": "CENTER",
+           "fills": [{"type": "SOLID", "color": {"r": 1, "g": 1, "b": 1, "a": 1}}]
+         },
+         {
+           "type": "IMAGE",
+           "x": 300,
+           "y": 60,
+           "width": 40,
+           "height": 40,
+           "cornerRadius": 20,
+           "imageUrl": "avatar"
+         }
       ]
     }
   ]
@@ -107,10 +119,16 @@ TIPOS DISPONIBLES: TEXT, RECTANGLE, FRAME, IMAGE
 EJEMPLOS DE COLORES PROFESIONALES:
 - Texto primario: {"r": 0.1, "g": 0.1, "b": 0.1, "a": 1}
 - Texto secundario: {"r": 0.4, "g": 0.4, "b": 0.4, "a": 1}
+- Texto sobre botones oscuros: {"r": 1, "g": 1, "b": 1, "a": 1} (BLANCO)
 - Fondos claros: {"r": 0.98, "g": 0.98, "b": 0.98, "a": 1}
 - Botón primario: {"r": 0.2, "g": 0.6, "b": 1, "a": 1}
 - Botón exitoso: {"r": 0.2, "g": 0.8, "b": 0.4, "a": 1}
 - Botón peligro: {"r": 1, "g": 0.3, "b": 0.3, "a": 1}
+
+IMPORTANTE PARA BOTONES:
+- El texto sobre botones de colores oscuros DEBE ser blanco: {"r": 1, "g": 1, "b": 1, "a": 1}
+- Posiciona el texto centrado sobre el botón con las mismas coordenadas x,y del botón
+- Agrega iconos usando el tipo IMAGE con cornerRadius 0 para iconos cuadrados o 50% para circulares
 
 Crea diseños PROFESIONALES, MODERNOS y FUNCIONALES.`;
 
@@ -281,15 +299,28 @@ async function createOrUpdate(frames: MCPFrameNode[]) {
           break;
 
         case "IMAGE":
-          // Para imágenes usamos un rectángulo con placeholder por ahora
+          // Para imágenes usamos un rectángulo con un texto indicativo
           const img = figma.createRectangle();
           img.resize(n.width ?? 100, n.height ?? 100);
 
-          // Placeholder para imagen
+          // Estilo de placeholder más atractivo
           img.fills = [
             {
               type: "SOLID",
-              color: { r: 0.9, g: 0.9, b: 0.95 },
+              color: { r: 0.95, g: 0.95, b: 0.97 },
+            },
+          ];
+
+          // Sombra sutil para imágenes
+          img.effects = [
+            {
+              type: "DROP_SHADOW",
+              visible: true,
+              blendMode: "NORMAL",
+              color: { r: 0, g: 0, b: 0, a: 0.1 },
+              offset: { x: 0, y: 1 },
+              radius: 2,
+              spread: 0,
             },
           ];
 
@@ -347,6 +378,17 @@ async function createOrUpdate(frames: MCPFrameNode[]) {
       }
 
       frame!.appendChild(node);
+
+      // Si es una imagen, agregar emoji indicativo centrado
+      if (n.type === "IMAGE") {
+        const imgIcon = figma.createText();
+        imgIcon.characters = "📷";
+        imgIcon.fontSize = Math.min(n.width ?? 100, n.height ?? 100) * 0.4;
+        imgIcon.textAlignHorizontal = "CENTER";
+        imgIcon.x = n.x + (n.width ?? 100) / 2 - imgIcon.fontSize / 2;
+        imgIcon.y = n.y + (n.height ?? 100) / 2 - imgIcon.fontSize / 2;
+        frame!.appendChild(imgIcon);
+      }
     }
   }
 }

@@ -1,8 +1,9 @@
 {
   "name": "Juanma AI Generator",
-  "id": "juanma-ai-generator-plugin",
+  "id": "1527097337391914580",
   "api": "1.0.0",
   "main": "dist/code.js",
+  "documentAccess": "dynamic-page",
   "ui": "ui.html",
   "editorType": ["figma", "figjam", "dev"],
   "enablePrivatePluginApi": true,
